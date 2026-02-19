@@ -86,6 +86,24 @@ Frontend will run on http://localhost:3000
 - Input validation
 - CORS protection
 
+## Deployment
+
+### Backend Deployment (Vercel)
+1. Create new project on Vercel
+2. Import GitHub repo
+3. Set Root Directory: `backend`
+4. Deploy
+5. Copy backend URL (e.g., `https://your-backend.vercel.app`)
+
+### Frontend Deployment (Vercel)
+1. Create another project on Vercel
+2. Import same GitHub repo
+3. Set Root Directory: `frontend`
+4. Add Environment Variable:
+   - Key: `REACT_APP_API_URL`
+   - Value: `https://your-backend.vercel.app/api`
+5. Deploy
+
 ## Default Account
 
 New users start with $1000 balance and a unique account number.
