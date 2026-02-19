@@ -4,7 +4,14 @@ const bcrypt = require('bcryptjs');
 
 const dbPath = path.join(__dirname, 'database.json');
 
+const ensureDB = () => {
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, JSON.stringify({ users: [], transactions: [] }, null, 2));
+  }
+};
+
 const readDB = () => {
+  ensureDB();
   const data = fs.readFileSync(dbPath, 'utf8');
   return JSON.parse(data);
 };
