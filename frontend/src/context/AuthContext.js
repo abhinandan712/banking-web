@@ -4,7 +4,7 @@ import axios from 'axios';
 const AuthContext = createContext();
 
 // Configure axios defaults
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://banking-web-nine.vercel.app/api';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || '/api';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
