@@ -60,6 +60,24 @@ module.exports = async (req, res) => {
       return res.json({ message: 'Withdrawal successful', balance: dbUser.balance, transaction });
     }
 
+    if (action === 'transfer' && req.method === 'POST') {
+      const { amount, recipientEmail } = req.body;
+      const sender = db.users.find(u => u.id === user.id);
+      const recipient = db.users.find(u => u.email === recipientEmail);
+      
+      if (!recipient) return res.status(404).json({ message: 'Recipient not found' });
+      if (sender.email === recipientEmail) return res.status(400).json({ message: 'Cannot transfer to yourself' });
+      if (sender.balance < parseFloat(amount)) return res.status(400).json({ message: 'Insufficient balance' });
+      
+      sender.balance -= parseFloat(amount);
+      recipient.balance += parseFloat(amount);
+      
+      const transaction = { id: Date.now().toString(), userId: sender.id, type: 'transfer_sent', amount: parseFloat(amount), description: `Transfer to ${recipient.name}`, recipientId: recipient.id, recipientEmail: recipient.email, balanceAfter: sender.balance, createdAt: new Date().toISOString() };
+      db.transactions.push(transaction);
+      
+      return res.json({ message: 'Transfer successful', balance: sender.balance, transaction });
+    }
+
     if (action === 'transactions' && req.method === 'GET') {
       const transactions = db.transactions.filter(t => t.userId === user.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10);
       return res.json({ transactions });
