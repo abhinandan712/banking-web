@@ -18,7 +18,7 @@ const Dashboard = () => {
 
   const fetchTransactions = async () => {
     try {
-      const { data } = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/account/transactions`);
+      const { data } = await axios.get('/account/transactions');
       setTransactions(data.transactions || []);
     } catch (err) {
       console.error(err);
@@ -29,7 +29,7 @@ const Dashboard = () => {
   const handleTransaction = async (type) => {
     try {
       const payload = type === 'transfer' ? { amount: parseFloat(amount), recipientEmail: recipientAccount } : { amount: parseFloat(amount) };
-      const { data } = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/account/${type}`, payload);
+      const { data } = await axios.post(`/account/${type}`, payload);
       updateUserBalance(data.balance);
       setMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
       setAmount('');
