@@ -3,9 +3,8 @@
   "outputDirectory": "frontend/build",
   "installCommand": "cd frontend && npm install",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/auth/:action", "destination": "/api/auth" },
+    { "source": "/api/account/:action", "destination": "/api/account" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
