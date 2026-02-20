@@ -20,7 +20,8 @@ const writeDB = (data) => {
 };
 
 const auth = (req) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  const token = authHeader?.replace('Bearer ', '');
   if (!token) throw new Error('No token');
   const decoded = jwt.verify(token, 'secret-key');
   const db = readDB();
@@ -73,6 +74,7 @@ module.exports = async (req, res) => {
 
     res.status(404).json({ message: 'Not found' });
   } catch (error) {
-    res.status(401).json({ message: 'Unauthorized' });
+    console.error('Auth error:', error);
+    res.status(401).json({ message: 'Unauthorized', error: error.message });
   }
 };
