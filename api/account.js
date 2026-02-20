@@ -1,22 +1,19 @@
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
-const path = require('path');
 
-const dbPath = path.join('/tmp', 'database.json');
-
-const initDB = () => {
-  if (!fs.existsSync(dbPath)) {
-    fs.writeFileSync(dbPath, JSON.stringify({ users: [], transactions: [] }));
-  }
-};
-
-const readDB = () => {
-  initDB();
-  return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-};
-
-const writeDB = (data) => {
-  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+let db = {
+  users: [
+    {
+      id: '1771506585030giz3cri2m',
+      name: 'Abhi',
+      email: 'abhikumbar636@gmail.com',
+      phone: '1234567890',
+      password: '$2a$10$l3wH3TorhDvomN0TPfrSxeS8cjSM4.dGzJHVD4unAjlHvdo.AydLW',
+      accountNumber: 'ACC1771506585030',
+      balance: 1000,
+      role: 'user'
+    }
+  ],
+  transactions: []
 };
 
 const auth = (req) => {
@@ -24,7 +21,6 @@ const auth = (req) => {
   const token = authHeader?.replace('Bearer ', '');
   if (!token) throw new Error('No token');
   const decoded = jwt.verify(token, 'secret-key');
-  const db = readDB();
   const user = db.users.find(u => u.id === decoded.userId);
   if (!user) throw new Error('User not found');
   return user;
@@ -39,7 +35,6 @@ module.exports = async (req, res) => {
 
   try {
     const user = auth(req);
-    const db = readDB();
     const { action } = req.query;
 
     if (action === 'balance' && req.method === 'GET') {
@@ -52,7 +47,6 @@ module.exports = async (req, res) => {
       dbUser.balance += parseFloat(amount);
       const transaction = { id: Date.now().toString(), userId: user.id, type: 'deposit', amount: parseFloat(amount), description: `Deposit of $${amount}`, balanceAfter: dbUser.balance, createdAt: new Date().toISOString() };
       db.transactions.push(transaction);
-      writeDB(db);
       return res.json({ message: 'Deposit successful', balance: dbUser.balance, transaction });
     }
 
@@ -63,7 +57,6 @@ module.exports = async (req, res) => {
       dbUser.balance -= parseFloat(amount);
       const transaction = { id: Date.now().toString(), userId: user.id, type: 'withdraw', amount: parseFloat(amount), description: `Withdrawal of $${amount}`, balanceAfter: dbUser.balance, createdAt: new Date().toISOString() };
       db.transactions.push(transaction);
-      writeDB(db);
       return res.json({ message: 'Withdrawal successful', balance: dbUser.balance, transaction });
     }
 

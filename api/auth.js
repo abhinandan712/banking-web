@@ -1,23 +1,20 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
-const path = require('path');
 
-const dbPath = path.join('/tmp', 'database.json');
-
-const initDB = () => {
-  if (!fs.existsSync(dbPath)) {
-    fs.writeFileSync(dbPath, JSON.stringify({ users: [], transactions: [] }));
-  }
-};
-
-const readDB = () => {
-  initDB();
-  return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-};
-
-const writeDB = (data) => {
-  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+let db = {
+  users: [
+    {
+      id: '1771506585030giz3cri2m',
+      name: 'Abhi',
+      email: 'abhikumbar636@gmail.com',
+      phone: '1234567890',
+      password: '$2a$10$l3wH3TorhDvomN0TPfrSxeS8cjSM4.dGzJHVD4unAjlHvdo.AydLW',
+      accountNumber: 'ACC1771506585030',
+      balance: 1000,
+      role: 'user'
+    }
+  ],
+  transactions: []
 };
 
 module.exports = async (req, res) => {
@@ -31,7 +28,6 @@ module.exports = async (req, res) => {
 
   if (action === 'register' && req.method === 'POST') {
     const { name, email, phone, password } = req.body;
-    const db = readDB();
 
     if (db.users.find(u => u.email === email)) {
       return res.status(400).json({ message: 'User already exists' });
@@ -44,12 +40,10 @@ module.exports = async (req, res) => {
       password: hashedPassword,
       accountNumber: 'ACC' + Date.now(),
       balance: 1000,
-      role: 'user',
-      createdAt: new Date().toISOString()
+      role: 'user'
     };
 
     db.users.push(user);
-    writeDB(db);
 
     const token = jwt.sign({ userId: user.id }, 'secret-key', { expiresIn: '7d' });
     return res.json({ token, user: { id: user.id, name: user.name, email: user.email, accountNumber: user.accountNumber, balance: user.balance } });
@@ -57,7 +51,6 @@ module.exports = async (req, res) => {
 
   if (action === 'login' && req.method === 'POST') {
     const { email, password } = req.body;
-    const db = readDB();
     const user = db.users.find(u => u.email === email);
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
